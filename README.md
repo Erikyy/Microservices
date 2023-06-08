@@ -56,6 +56,8 @@ MANAGEMENT_DB_USER=db3_user
 MANAGEMENT_DB_PASSWORD=db3_password
 MANAGEMENT_DB=db_1
 ```
+For kafka configuration the port for using outside docker is 9094, using it with other containers - 9092
+
 Then before running services, run migration-runner to migrate transaction-svc database.
 Other automatic migrations are handled by JPA. 
 
