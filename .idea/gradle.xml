@@ -10,9 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/management-svc" />
             <option value="$PROJECT_DIR$/migration-runner" />
-            <option value="$PROJECT_DIR$/public-api" />
             <option value="$PROJECT_DIR$/shared" />
             <option value="$PROJECT_DIR$/transaction-svc" />
             <option value="$PROJECT_DIR$/user-svc" />
