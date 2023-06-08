@@ -33,7 +33,7 @@ Run ```docker-compose up -d``` to start databases and kafka
 
 In each run configuration, add these env variables
 though values need to be depending on what ports are assigned
-
+```dotenv
 TRANSACTION_DB_HOST=127.0.0.1
 TRANSACTION_DB_PORT_MASTER=59000
 TRANSACTION_DB_PORT_SLAVE1=59001-59005
@@ -55,7 +55,7 @@ MANAGEMENT_DB_PORT=5433
 MANAGEMENT_DB_USER=db3_user
 MANAGEMENT_DB_PASSWORD=db3_password
 MANAGEMENT_DB=db_1
-
+```
 Then before running services, run migration-runner to migrate transaction-svc database.
 Other automatic migrations are handled by JPA. 
 
