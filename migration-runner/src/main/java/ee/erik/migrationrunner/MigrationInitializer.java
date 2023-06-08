@@ -18,7 +18,7 @@ public class MigrationInitializer {
                     .locations(baseMigrationDir + "/" + name)
                     .baselineOnMigrate(false)
                     .dataSource(config.toDataSource())
-                    .schemas(config.getDatabase())
+                    //.schemas(config.getDatabase())
                     .load();
 
             flyway.migrate();
