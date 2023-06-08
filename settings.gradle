@@ -1,0 +1,8 @@
+rootProject.name = 'Microservices'
+
+include 'management-svc'
+include 'migration-runner'
+include 'public-api'
+include 'shared'
+include 'transaction-svc'
+include 'user-svc'

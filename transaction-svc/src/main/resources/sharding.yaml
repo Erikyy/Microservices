@@ -1,0 +1,77 @@
+dataSources:
+  master:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    jdbcUrl: jdbc:postgresql://127.0.0.1:59000/db_1?currentSchema=db_1
+    username: db1_user
+    password: db1_password
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 65
+    minPoolSize: 1
+  replica1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    jdbcUrl: jdbc:postgresql://127.0.0.1:59002/db_1?currentSchema=db_1
+    username: db_1_repl
+    password: db_1_repl_password
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 65
+    minPoolSize: 1
+  replica2:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    jdbcUrl: jdbc:postgresql://127.0.0.1:59003/db_1?currentSchema=db_1
+    username: db_1_repl
+    password: db_1_repl_password
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 65
+    minPoolSize: 1
+mode:
+  type: Standalone
+  repository:
+    type: JDBC
+
+rules:
+  - !SHARDING
+    tables:
+      b_transaction:
+        actualDataNodes: master.b_transaction_${0..2}
+        tableStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+    defaultShardingColumn: id
+    shardingAlgorithms:
+      inline:
+        type: INLINE
+        props:
+          algorithm-expression: b_transaction_$->{id % 3}
+          allow-range-query-with-inline-sharding: true
+    keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+
+  - !READWRITE_SPLITTING
+    dataSources:
+      readwrite_ds:
+        staticStrategy:
+          writeDataSourceName: master
+          readDataSourceNames:
+            - replica1
+            - replica2
+        loadBalancerName: random
+    loadBalancers:
+      random:
+        type: RANDOM
+props:
+  sql-show: true
+  proxy-hint-enabled: true

@@ -1,0 +1,78 @@
+version: "3"
+
+networks:
+  intranet:
+  db_net_1:
+    driver: bridge
+
+services:
+  kafka:
+    image: bitnami/kafka:latest
+    ports:
+      - '9092:9092'
+      - '9094:9094'
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    volumes:
+      - './kafka_data:/bitnami'
+
+  transaction-svc-db-master:
+    image: bitnami/postgresql:latest
+    volumes:
+      - './data/transaction_data:/bitnami/postgres'
+    ports:
+      - "59000:5432"
+    environment:
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_REPLICATION_USER: ${TRANSACTION_DB_REPLICATION_USER}
+      POSTGRESQL_REPLICATION_PASSWORD: ${TRANSACTION_DB_REPLICATION_PASSWORD}
+      POSTGRESQL_USERNAME: ${TRANSACTION_DB_USER}
+      POSTGRESQL_PASSWORD: ${TRANSACTION_DB_PASSWORD}
+      POSTGRESQL_DATABASE: ${TRANSACTION_DB}
+
+  transaction-svc-db-slave:
+    image: bitnami/postgresql:latest
+    depends_on:
+      - transaction-svc-db-master
+    deploy:
+      mode: replicated
+      replicas: 2
+    ports:
+      - "59001-59005:5432"
+    environment:
+      POSTGRESQL_REPLICATION_MODE: slave
+      POSTGRESQL_REPLICATION_USER: ${TRANSACTION_DB_REPLICATION_USER}
+      POSTGRESQL_REPLICATION_PASSWORD: ${TRANSACTION_DB_REPLICATION_PASSWORD}
+      POSTGRESQL_MASTER_HOST: transaction-svc-db-master
+      POSTGRESQL_MASTER_PORT: 59000
+      POSTGRESQL_PASSWORD: ${TRANSACTION_DB_PASSWORD}
+
+  user-svc-db-master:
+    image: bitnami/postgresql:latest
+    volumes:
+      - './data/user_data:/bitnami/postgres'
+    ports:
+      - "59100:5432"
+    environment:
+      POSTGRESQL_USERNAME: ${USER_DB_USER}
+      POSTGRESQL_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRESQL_DATABASE: ${USER_DB}
+
+  management-svc-db:
+    image: postgres:alpine
+    container_name: management_db_container
+    environment:
+      POSTGRES_USER: ${MANAGEMENT_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${MANAGEMENT_DB_PASSWORD:-postgres}
+      PGDATA: /data/postgres
+    volumes:
+      - './data/management_data:/data/postgres'
+      - './management-svc/user-svc-transaction-svc-management-svc-init.sql:/docker-entrypoint-initdb.d/management-svc.sql'
+    ports:
+      - "59200:5432"
+    networks:
+      - db_net_1
+    restart: unless-stopped

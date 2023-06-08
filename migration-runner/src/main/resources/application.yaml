@@ -1,0 +1,8 @@
+migration:
+  datasources:
+    transaction-db:
+      host: jdbc:postgresql://${TRANSACTION_DB_HOST}:${TRANSACTION_DB_PORT_MASTER}/${TRANSACTION_DB}
+      username: ${TRANSACTION_DB_USER}
+      password: ${TRANSACTION_DB_PASSWORD}
+      database: ${TRANSACTION_DB}
+      driver: org.postgresql.Driver
