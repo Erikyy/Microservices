@@ -1,0 +1,3 @@
+alter table b_transaction_0 drop constraint b_transaction_0_signature_key;
+alter table b_transaction_1 drop constraint b_transaction_1_signature_key;
+alter table b_transaction_2 drop constraint b_transaction_2_signature_key;
